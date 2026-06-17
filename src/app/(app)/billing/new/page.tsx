@@ -48,8 +48,9 @@ export default function NewBillingPage() {
 
   const { data: products } = useQuery({
     queryKey: ['product-search', productSearch],
-    queryFn: () => axios.get('/api/inventory', { params: { search: productSearch, pageSize: 10 } }).then(r => r.data.data),
-    enabled: productSearch.length >= 1,
+    queryFn: () => axios.get('/api/inventory', { params: { search: productSearch, pageSize: 50 } }).then(r => r.data.data),
+    // enabled: productSearch.length >= 1,
+    enabled: true,
   })
 
   const { data: customers } = useQuery({
@@ -176,22 +177,28 @@ export default function NewBillingPage() {
         {/* Product search */}
         <div className="card p-4">
           <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            {/* <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" /> */}
+            <Search className="absolute left-3.5 top-5 -translate-y-1/2 w-4 h-4 text-slate-500" />
             <input
               type="text"
               placeholder="Search products by name or SKU..."
               className="input pl-10 text-base"
-              onChange={e => { debouncedProductSearch(e.target.value); setShowProductDrop(true) }}
+              // onChange={e => { debouncedProductSearch(e.target.value); setShowProductDrop(true) }}
+              onChange={(e) => {
+                setProductSearch(e.target.value)
+                setShowProductDrop(true)
+              }}
               onFocus={() => setShowProductDrop(true)}
               autoFocus
             />
             {showProductDrop && products && products.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 card shadow-2xl z-50 max-h-72 overflow-y-auto">
+              <div className="mt-2 card shadow-2xl z-50 max-h-72 overflow-y-auto p-2 grid grid-cols-2 gap-2">
                 {products.map((product: any) => (
                   <button
                     key={product.id}
                     onClick={() => addToCart(product)}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-700/40 transition-colors text-left border-b border-slate-700/30 last:border-0"
+                    // className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-700/40 transition-colors text-left border-b border-slate-700/30 last:border-0"
+                    className="w-full flex items-center gap-3 p-3 hover:bg-slate-700/40 transition-colors text-left border border-slate-700/30 rounded-lg"
                   >
                     <div className="w-9 h-9 rounded-lg bg-brand-500/15 flex items-center justify-center flex-shrink-0">
                       <Package className="w-4 h-4 text-brand-400" />
@@ -211,6 +218,7 @@ export default function NewBillingPage() {
           </div>
         </div>
 
+
         {/* Cart */}
         <div className="card overflow-hidden">
           {cart.length === 0 ? (
@@ -226,7 +234,6 @@ export default function NewBillingPage() {
                   <Trash2 className="w-3 h-3" /> Clear all
                 </button>
               </div>
-
               <div className="divide-y divide-slate-700/30">
                 {cart.map(item => (
                   <div key={item.productId} className="p-4">
@@ -315,55 +322,57 @@ export default function NewBillingPage() {
         {/* Customer */}
         <div className="card p-5">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Customer</p>
-          {selectedCustomer ? (
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                <User className="w-4 h-4 text-blue-400" />
+          {
+            selectedCustomer ? (
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                  <User className="w-4 h-4 text-blue-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-200 truncate">{selectedCustomer.name}</p>
+                  <p className="text-xs text-slate-500">{selectedCustomer.phone}</p>
+                  {selectedCustomer.balance > 0 && (
+                    <p className="text-xs text-amber-400">Due: {formatCurrency(selectedCustomer.balance)}</p>
+                  )}
+                </div>
+                <button onClick={() => setSelectedCustomer(null)} className="text-slate-500 hover:text-red-400">
+                  <X className="w-4 h-4" />
+                </button>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-200 truncate">{selectedCustomer.name}</p>
-                <p className="text-xs text-slate-500">{selectedCustomer.phone}</p>
-                {selectedCustomer.balance > 0 && (
-                  <p className="text-xs text-amber-400">Due: {formatCurrency(selectedCustomer.balance)}</p>
+            ) : (
+              <div className="relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <input
+                  type="text"
+                  placeholder="Search customer..."
+                  className="input pl-10"
+                  onChange={e => { debouncedCustomerSearch(e.target.value); setShowCustomerDrop(true) }}
+                  onFocus={() => setShowCustomerDrop(true)}
+                />
+                {showCustomerDrop && customers && customers.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 card shadow-2xl z-50">
+                    {customers.map((c: any) => (
+                      <button
+                        key={c.id}
+                        onClick={() => { setSelectedCustomer(c); setShowCustomerDrop(false) }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-slate-700/40 text-left border-b border-slate-700/30 last:border-0"
+                      >
+                        <User className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm text-slate-200">{c.name}</p>
+                          <p className="text-xs text-slate-500">{c.phone}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
-              <button onClick={() => setSelectedCustomer(null)} className="text-slate-500 hover:text-red-400">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          ) : (
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-              <input
-                type="text"
-                placeholder="Search customer..."
-                className="input pl-10"
-                onChange={e => { debouncedCustomerSearch(e.target.value); setShowCustomerDrop(true) }}
-                onFocus={() => setShowCustomerDrop(true)}
-              />
-              {showCustomerDrop && customers && customers.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 card shadow-2xl z-50">
-                  {customers.map((c: any) => (
-                    <button
-                      key={c.id}
-                      onClick={() => { setSelectedCustomer(c); setShowCustomerDrop(false) }}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-slate-700/40 text-left border-b border-slate-700/30 last:border-0"
-                    >
-                      <User className="w-4 h-4 text-slate-500 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm text-slate-200">{c.name}</p>
-                        <p className="text-xs text-slate-500">{c.phone}</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+            )
+          }
+        </div >
 
         {/* Bill Summary */}
-        <div className="card p-5 space-y-3">
+        < div className="card p-5 space-y-3" >
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Bill Summary</p>
 
           <div className="space-y-2 text-sm">
@@ -400,10 +409,10 @@ export default function NewBillingPage() {
             <span className="font-semibold text-slate-200">Total</span>
             <span className="text-2xl font-display font-bold text-brand-400">{formatCurrency(totalAmount)}</span>
           </div>
-        </div>
+        </div >
 
         {/* Payment */}
-        <div className="card p-5 space-y-3">
+        < div className="card p-5 space-y-3" >
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Payment</p>
 
           <div>
@@ -437,12 +446,14 @@ export default function NewBillingPage() {
             />
           </div>
 
-          {paid > 0 && (
-            <div className={`flex justify-between text-sm font-medium ${change >= 0 ? 'text-green-400' : 'text-amber-400'}`}>
-              <span>{change >= 0 ? 'Change' : 'Due'}</span>
-              <span>{formatCurrency(Math.abs(change))}</span>
-            </div>
-          )}
+          {
+            paid > 0 && (
+              <div className={`flex justify-between text-sm font-medium ${change >= 0 ? 'text-green-400' : 'text-amber-400'}`}>
+                <span>{change >= 0 ? 'Change' : 'Due'}</span>
+                <span>{formatCurrency(Math.abs(change))}</span>
+              </div>
+            )
+          }
 
           <div>
             <label className="label">Notes</label>
@@ -454,10 +465,10 @@ export default function NewBillingPage() {
               placeholder="Optional notes..."
             />
           </div>
-        </div>
+        </div >
 
         {/* Actions */}
-        <div className="space-y-2">
+        < div className="space-y-2" >
           <button
             onClick={() => handleSubmit('COMPLETED')}
             disabled={cart.length === 0 || createSaleMutation.isPending}
@@ -478,8 +489,8 @@ export default function NewBillingPage() {
               Cancel
             </button>
           </div>
-        </div>
-      </div>
-    </div>
+        </div >
+      </div >
+    </div >
   )
 }

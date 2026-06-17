@@ -45,35 +45,32 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const { reason, type, quantity, currentStock, ...productUpdates } = body
 
   // Track stock change
-  if (currentStock !== undefined && currentStock !== existing.currentStock) {
+  if (body.currentStock !== undefined && body.currentStock !== existing.currentStock) {
     await StockMovement.create({
       productId: existing._id,
-      // IMPORTANT: If your schema doesn't allow 'STOCK_IN'/'STOCK_OUT', fallback to 'ADJUSTMENT'
-      type: type === 'STOCK_IN' || type === 'STOCK_OUT' ? type : 'ADJUSTMENT',
-      quantity: quantity || Math.abs(currentStock - existing.currentStock),
+      type: 'ADJUSTMENT',
+      quantity: Math.abs(body.currentStock - existing.currentStock),
       beforeStock: existing.currentStock,
-      afterStock: currentStock,
-      reason: reason || 'Manual adjustment',
+      afterStock: body.currentStock,
+      reason: body.reason || 'Manual adjustment',
     })
 
     const users = await User.find({ isActive: true, pushToken: { $ne: null } }, 'pushToken').lean()
     const subs = users.map((u: any) => ({ token: u.pushToken }))
 
-    if (currentStock === 0) {
+    if (body.currentStock === 0) {
       sendOutOfStockAlert(subs, existing.name).catch(console.error)
       await StockAlert.create({ productId: existing._id, type: 'OUT_OF_STOCK', message: `${existing.name} is out of stock` }).catch(() => { })
-    } else if (currentStock <= (productUpdates.minStockLevel ?? existing.minStockLevel)) {
-      sendLowStockAlert(subs, existing.name, currentStock, existing.minStockLevel).catch(console.error)
-      await StockAlert.create({ productId: existing._id, type: 'LOW_STOCK', message: `${existing.name}: stock ${currentStock} ≤ min ${existing.minStockLevel}` }).catch(() => { })
+    } else if (body.currentStock <= (body.minStockLevel ?? existing.minStockLevel)) {
+      sendLowStockAlert(subs, existing.name, body.currentStock, existing.minStockLevel).catch(console.error)
+      await StockAlert.create({ productId: existing._id, type: 'LOW_STOCK', message: `${existing.name}: stock ${body.currentStock} ≤ min ${existing.minStockLevel}` }).catch(() => { })
     }
   }
 
+  delete body.reason
+
   // 2. Safely update the product using ONLY valid product fields + currentStock
-  const updated = await Product.findByIdAndUpdate(
-    params.id,
-    { ...productUpdates, currentStock },
-    { new: true }
-  )
+  const updated = await Product.findByIdAndUpdate(params.id, body, { new: true })
     .populate('categoryId', 'name color')
     .populate('supplierId', 'name')
     .lean()
