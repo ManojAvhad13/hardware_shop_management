@@ -135,25 +135,36 @@ function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
           })}
         </nav>
 
-        {/* User */}
-        <div className="p-3 border-t border-slate-700/50">
-          <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition-colors">
-            <div className="w-9 h-9 rounded-xl bg-brand-500/20 flex items-center justify-center flex-shrink-0">
-              <span className="text-brand-400 font-bold text-sm">
-                {(session?.user?.name || 'U').charAt(0)}
-              </span>
+        <div className="mt-auto">
+          {/* User */}
+          <div className="p-3 border-t border-slate-700/50">
+            <div className="flex items-center gap-3 p-3 rounded-3xl border border-slate-800 bg-slate-950/80 hover:bg-slate-800 transition-colors">
+              <div className="w-10 h-10 rounded-2xl bg-brand-500/20 flex items-center justify-center flex-shrink-0">
+                <span className="text-brand-400 font-bold text-sm">
+                  {(session?.user?.name || 'U').charAt(0)}
+                </span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-slate-200 truncate">{session?.user?.name}</p>
+                <p className="text-xs text-slate-500 truncate">{(session?.user as any)?.role}</p>
+              </div>
+              <button
+                onClick={() => signOut({ callbackUrl: '/login' })}
+                className="text-slate-500 hover:text-red-400 transition-colors"
+                title="Sign out"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-slate-200 truncate">{session?.user?.name}</p>
-              <p className="text-xs text-slate-500 truncate">{(session?.user as any)?.role}</p>
+          </div>
+          <div className="px-3 pb-4">
+            <div className="rounded-2xl bg-slate-900/90 p-3 text-slate-400 text-xs">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="w-2.5 h-2.5 rounded-full bg-brand-500" />
+                <span className="font-semibold text-slate-200">Created by</span>
+                <p className="leading-5">Manoj Avhad</p>
+              </div>
             </div>
-            <button
-              onClick={() => signOut({ callbackUrl: '/login' })}
-              className="text-slate-500 hover:text-red-400 transition-colors"
-              title="Sign out"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
           </div>
         </div>
       </aside>
