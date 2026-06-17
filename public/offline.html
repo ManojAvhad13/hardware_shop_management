@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offline – HardwareShop Pro</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, system-ui, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .container {
+      text-align: center;
+      max-width: 400px;
+    }
+    .icon {
+      width: 80px; height: 80px;
+      background: #f97316;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 2.5rem;
+    }
+    h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.75rem; }
+    p { color: #94a3b8; line-height: 1.6; margin-bottom: 1.5rem; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: #f97316/20; color: #fb923c;
+      border: 1px solid rgba(249,115,22,0.3);
+      padding: 0.375rem 1rem; border-radius: 9999px;
+      font-size: 0.875rem; font-weight: 600;
+      margin-bottom: 2rem;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #f97316; }
+    button {
+      background: #f97316; color: white; border: none;
+      padding: 0.75rem 2rem; border-radius: 12px;
+      font-size: 1rem; font-weight: 600; cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #ea580c; }
+    .features {
+      margin-top: 2rem; text-align: left;
+      background: rgba(30,41,59,0.6);
+      border: 1px solid #334155;
+      border-radius: 12px; padding: 1rem;
+    }
+    .feature { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0; font-size: 0.875rem; color: #94a3b8; }
+    .feature-icon { font-size: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">🔧</div>
+    <h1>You're Offline</h1>
+    <div class="badge">
+      <div class="dot"></div>
+      No Internet Connection
+    </div>
+    <p>Don't worry — HardwareShop Pro works offline too. Your data is cached and will sync automatically when you reconnect.</p>
+    <button onclick="window.location.reload()">🔄 Try Again</button>
+    <div class="features">
+      <p style="font-size:0.75rem; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;">Available Offline</p>
+      <div class="feature"><span class="feature-icon">✅</span> View cached inventory</div>
+      <div class="feature"><span class="feature-icon">✅</span> Create sales (syncs when online)</div>
+      <div class="feature"><span class="feature-icon">✅</span> View customer list</div>
+      <div class="feature"><span class="feature-icon">⏳</span> Reports (requires connection)</div>
+    </div>
+  </div>
+  <script>
+    window.addEventListener('online', () => window.location.href = '/dashboard')
+  </script>
+</body>
+</html>
